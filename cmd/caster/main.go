@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/mitchellh/go-homedir"
+	caster "github.com/zchrykng/gocaster"
 )
 
 type User struct {
@@ -40,9 +42,19 @@ func main() {
 	fmt.Println(c)
 	fmt.Println(c.Users[0])
 
-	// r := mux.NewRouter()
+	cast, err := caster.MakeCaster(c.URL, c.Root)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
 
-	// http.Handle("/", r)
+	fmt.Println(cast)
 
-	// http.ListenAndServe(":8000", nil)
+	err = cast.ScanFeeds()
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
+	http.Handle("/", cast.Router)
+
+	http.ListenAndServe(":8000", nil)
 }
