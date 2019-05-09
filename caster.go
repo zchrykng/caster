@@ -5,9 +5,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"path"
+	"path/filepath"
 
 	"github.com/gorilla/mux"
-	"github.com/mitchellh/go-homedir"
 )
 
 type Caster struct {
@@ -19,24 +20,37 @@ type Caster struct {
 
 func MakeCaster(URL string, Root string) (*Caster, error) {
 	c := &Caster{URL: URL, Root: Root}
-
 	c.Feeds = make(map[string]*Feed)
+
+	c.Router = mux.NewRouter()
+
+	c.Router.HandleFunc("/", c.Handler)
 
 	return c, nil
 }
 
 func (c *Caster) ScanFeeds() error {
-
-	path, _ := homedir.Expand(c.Root)
-
-	files, err := ioutil.ReadDir(path)
+	files, err := ioutil.ReadDir(c.Root)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, f := range files {
-		u := c.URL + "/" + Slugify(f.Name(), true)
-		c.Feeds[Slugify(f.Name(), true)], err = MakeFeed(u, c.Root, f.Name())
+		slug := Slugify(f.Name(), true)
+		u := path.Join(c.URL, slug)
+
+		fmt.Println("Slug:", slug)
+
+		s := c.Router.PathPrefix("/" + slug).Subrouter()
+
+		fmt.Println("URL:", u)
+
+		c.Feeds[slug], err = MakeFeed(u, filepath.Join(c.Root, f.Name()), s, f.Name())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.Router.HandleFunc("/"+slug, c.Feeds[slug].FeedHandler)
 
 		fmt.Println(f.Name())
 	}
@@ -47,8 +61,8 @@ func (c *Caster) ScanFeeds() error {
 }
 
 func (c *Caster) Handler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	feed := vars["feed"]
 
-	fmt.Println("episodes:", c.Feeds[feed])
+	for k, v := range c.Feeds {
+		fmt.Fprintln(w, v.Title, "<->", k)
+	}
 }

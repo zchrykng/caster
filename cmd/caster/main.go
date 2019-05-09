@@ -42,6 +42,8 @@ func main() {
 	fmt.Println(c)
 	fmt.Println(c.Users[0])
 
+	c.Root, _ = homedir.Expand(c.Root)
+
 	cast, err := caster.MakeCaster(c.URL, c.Root)
 	if err != nil {
 		fmt.Println("error:", err)
