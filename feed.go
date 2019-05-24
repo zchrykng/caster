@@ -33,9 +33,11 @@ func (f *Feed) ScanEpisodes() error {
 		log.Fatal(err)
 	}
 
-	for _, f := range files {
-		fmt.Println("Slug:", Slugify(f.Name(), true))
-		fmt.Println("File:", f.Name())
+	for _, target := range files {
+		fmt.Println("Slug:", Slugify(target.Name(), true))
+		fmt.Println("File:", target.Name())
+
+		f.Episodes[Slugify(target.Name(), true)], err = MakeEpisode(target.Name())
 	}
 
 	return nil

@@ -1,3 +1,5 @@
+github.com/dhowden/tag v0.0.0-20190519100835-db0c67e351b1 h1:HR8W6GvuS20j4kNxa/XQeyVA0vHLKVMCAVJj0RGWauY=
+github.com/dhowden/tag v0.0.0-20190519100835-db0c67e351b1/go.mod h1:SniNVYuaD1jmdEEvi+7ywb1QFR7agjeTdGKyFb0p7Rw=
 github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d h1:lBXNCxVENCipq4D1Is42JVOP4eQjlB8TQ6H69Yx5J9Q=
 github.com/goji/httpauth v0.0.0-20160601135302-2da839ab0f4d/go.mod h1:nnjvkQ9ptGaCkuDUx6wNykzzlUixGxvkme+H/lnzb+A=
 github.com/gorilla/mux v1.7.1 h1:Dw4jY2nghMMRsh1ol8dv1axHkDwMQK2DHerMNJsIpJU=
@@ -8,3 +10,5 @@ github.com/mitchellh/go-homedir v1.1.0 h1:lukF9ziXFxDFPkA1vsr5zpc1XuPDn/wFntq5mG
 github.com/mitchellh/go-homedir v1.1.0/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
 github.com/urfave/negroni v1.0.0 h1:kIimOitoypq34K7TG7DUaJ9kq/N4Ofuwi1sjz0KipXc=
 github.com/urfave/negroni v1.0.0/go.mod h1:Meg73S6kFm/4PpbYdq35yYWoCZ9mS/YSx+lKnmiohz4=
+github.com/vansante/go-ffprobe v1.0.0 h1:PqJhSGc+IG1c2i9qSB4yFXNOk/qENx9KemVWS6tzx08=
+github.com/vansante/go-ffprobe v1.0.0/go.mod h1:MT9fbqLwtrELBpKBDNWmReQdAl51ZgoGaLin6tM7eqo=

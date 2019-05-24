@@ -1,78 +1,58 @@
 package caster
 
 import (
+	"fmt"
+	"log"
+	"os"
 	"time"
-	
-	"github.com/vansante/go-ffprobe"
+
 	"github.com/dhowden/tag"
 )
 
+// Episode contains the information about the podcast episode
 type Episode struct {
-	Title string
-	File  *File
-}
-
-type File struct {
+	Title        string
 	Slug         string
 	Location     string
 	Name         string
 	Artist       string
 	ModifiedTime time.Time
 	Duration     time.Duration
-	Type         string
+	Type         tag.FileType
 	Size         int64
 }
 
-// Even though ctx will be expired, it is good practice to call its
-// cancelation function in any case. Failure to do so may keep the
-// context and its parent alive longer than necessary.
-defer cancel()
-
-select {
-case <-time.After(1 * time.Second):
-    fmt.Println("overslept")
-case <-ctx.Done():
-    fmt.Println(ctx.Err())
-}
-
+// MakeEpisode takes a file location and returns an episode object based on the meta data
 func MakeEpisode(location string) (*Episode, error) {
-	e := Episode{}
-	
-	e.File := File{}
-	
+	e := &Episode{}
+
 	f, err := os.Open(location)
 	if err != nil {
 		fmt.Printf("error loading file: %v", err)
-		return
+		return nil, err
 	}
 	defer f.Close()
 
 	fi, err := f.Stat()
 	if err != nil {
 		fmt.Printf("error reading file info: %v", err)
+		return nil, err
 	}
-	
-	d := time.Now().Add(50 * time.Millisecond)
-	ctx, cancel := context.WithDeadline(context.Background(), d)
-	
-	data, err := GetProbeDataContext(ctx, location)
+
+	m, err := tag.ReadFrom(f)
 	if err != nil {
-		fmt.Printf("error reading file: %v\n", err)
-		return
+		log.Fatal(err)
 	}
-	
-	e.Slug, _ = Slugify(m.Title())
+	log.Print(m.Format()) // The detected format.
+	log.Print(m.Title())
+
+	e.Slug = Slugify(m.Title(), true)
 	e.Location = location
 	e.Name = m.Title()
 	e.Artist = m.Artist()
 	e.ModifiedTime = fi.ModTime()
 	e.Type = m.FileType()
 	e.Size = fi.Size()
-	
 
-	
-
-
-
-	
+	return e, nil
 }
