@@ -39,11 +39,7 @@ func (c *Caster) ScanFeeds() error {
 		slug := Slugify(f.Name(), true)
 		u := path.Join(c.URL, slug)
 
-		fmt.Println("Slug:", slug)
-
 		s := c.Router.PathPrefix("/" + slug).Subrouter()
-
-		fmt.Println("URL:", u)
 
 		c.Feeds[slug], err = MakeFeed(u, filepath.Join(c.Root, f.Name()), s, f.Name())
 		if err != nil {
@@ -51,8 +47,7 @@ func (c *Caster) ScanFeeds() error {
 		}
 
 		c.Router.HandleFunc("/"+slug, c.Feeds[slug].FeedHandler)
-
-		fmt.Println(f.Name())
+		c.Router.HandleFunc("/"+slug+"/{fileSlug}", c.Feeds[slug].FeedEpisode)
 	}
 
 	fmt.Println("feeds:", c.Feeds)

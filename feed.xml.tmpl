@@ -8,14 +8,14 @@
 <channel>
 <ttl>60</ttl>
 <title>{{ .Title }}</title>
-<link>{{ .Link }}</link>
+<link>{{ .URL }}</link>
 <description>
-{{ .Description }}
+{{ .Title }}
 </description>
-<language>ja</language>
+<language>en</language>
 <lastBuildDate><%=h vars[:now].rfc2822 %></lastBuildDate>
 <generator>https://github.com/zchrykng/gocaster</generator>
-{{- range .Episodes }}
+{{- range $slug, $episode := .Episodes }}
 <item>
 <title>{{ .Title }}</title>
 <link>{{ .File.Url }}</link>

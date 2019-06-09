@@ -28,14 +28,14 @@ func MakeEpisode(location string) (*Episode, error) {
 
 	f, err := os.Open(location)
 	if err != nil {
-		fmt.Printf("error loading file: %v", err)
+		fmt.Printf("Episode handler: error loading file: %v", err)
 		return nil, err
 	}
 	defer f.Close()
 
 	fi, err := f.Stat()
 	if err != nil {
-		fmt.Printf("error reading file info: %v", err)
+		fmt.Printf("Episode handler: error reading file info: %v", err)
 		return nil, err
 	}
 
@@ -43,8 +43,6 @@ func MakeEpisode(location string) (*Episode, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Print(m.Format()) // The detected format.
-	log.Print(m.Title())
 
 	e.Slug = Slugify(m.Title(), true)
 	e.Location = location
