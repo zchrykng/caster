@@ -1,0 +1,10 @@
+{
+	"URL": "localhost:8000",
+	"Root": "~/casts",
+	"Users": [{
+		"Name": "zchrykng",
+		"Pass": "password",
+		"Admin": true,
+		"AuthedFeeds": [ "all" ]
+	}]
+}
