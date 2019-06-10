@@ -11,7 +11,6 @@ import (
 
 // Episode contains the information about the podcast episode
 type Episode struct {
-	Title        string
 	Slug         string
 	Location     string
 	Name         string

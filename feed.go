@@ -2,7 +2,8 @@ package caster
 
 import (
 	"fmt"
-	"html/template"
+	"time"
+
 	//"github.com/rogpeppe/godef/go/types"
 	"io/ioutil"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"path"
 	"regexp"
 
+	"github.com/eduncan911/podcast"
 	"github.com/gorilla/mux"
 )
 
@@ -18,18 +20,20 @@ type Feed struct {
 	Root     string
 	Title    string
 	Episodes map[string]*Episode
-	Router   *mux.Router
 }
 
 var typeFilter = regexp.MustCompile(".*\\.(m4a|m4b|mp3)")
 
-var feedTemplate = template.Must(template.ParseFiles("/User/zach/Documents/Projects/caster"))
+// var templates = packr.NewBox("./templates")
 
-func MakeFeed(URL string, Root string, Router *mux.Router, Title string) (*Feed, error) {
-	f := &Feed{URL: URL, Root: Root, Title: Title, Router: Router}
+// var feedTemplate = template.Must(template.New(templates.FindString("feed.xml")))
+
+//var feedTemplate = template.Must(template.ParseFiles("/User/zach/Documents/Projects/caster"))
+
+func MakeFeed(URL string, Root string, Title string) (*Feed, error) {
+	f := &Feed{URL: URL, Root: Root, Title: Title}
 
 	f.Episodes = make(map[string]*Episode)
-
 	f.ScanEpisodes()
 
 	return f, nil
@@ -51,14 +55,30 @@ func (f *Feed) ScanEpisodes() error {
 }
 
 func (f *Feed) FeedHandler(w http.ResponseWriter, r *http.Request) {
+	now := time.Now()
 
-	err := feedTemplate.Execute(w, f)
-	if err != nil {
-		log.Fatal(err)
-	}
+	p := podcast.New(f.Title, f.URL, f.Title, &now, &now)
 
 	for k, v := range f.Episodes {
-		fmt.Fprintln(w, v.Name, "<->", k)
+		item := podcast.Item{
+			Title:       v.Name,
+			Link:        f.URL + "/" + k,
+			Description: v.Name,
+			PubDate:     &v.ModifiedTime,
+		}
+
+		item.AddEnclosure(item.Link, podcast.M4A, v.Size)
+
+		_, err := p.AddItem(item)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/xml")
+
+	if err := p.Encode(w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 

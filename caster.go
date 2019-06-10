@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"path"
 	"path/filepath"
 
 	"github.com/gorilla/mux"
@@ -36,18 +35,18 @@ func (c *Caster) ScanFeeds() error {
 	}
 
 	for _, f := range files {
-		slug := Slugify(f.Name(), true)
-		u := path.Join(c.URL, slug)
+		if f.IsDir() {
+			slug := Slugify(f.Name(), true)
+			u := c.URL + "/" + slug
 
-		s := c.Router.PathPrefix("/" + slug).Subrouter()
+			c.Feeds[slug], err = MakeFeed(u, filepath.Join(c.Root, f.Name()), f.Name())
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		c.Feeds[slug], err = MakeFeed(u, filepath.Join(c.Root, f.Name()), s, f.Name())
-		if err != nil {
-			log.Fatal(err)
+			c.Router.HandleFunc("/"+slug, c.Feeds[slug].FeedHandler)
+			c.Router.HandleFunc("/"+slug+"/{fileSlug}", c.Feeds[slug].FeedEpisode)
 		}
-
-		c.Router.HandleFunc("/"+slug, c.Feeds[slug].FeedHandler)
-		c.Router.HandleFunc("/"+slug+"/{fileSlug}", c.Feeds[slug].FeedEpisode)
 	}
 
 	fmt.Println("feeds:", c.Feeds)

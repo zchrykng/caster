@@ -40,7 +40,6 @@ func main() {
 	}
 
 	fmt.Println(c)
-	fmt.Println(c.Users[0])
 
 	c.Root, _ = homedir.Expand(c.Root)
 
@@ -48,8 +47,6 @@ func main() {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-
-	fmt.Println(cast)
 
 	err = cast.ScanFeeds()
 	if err != nil {
