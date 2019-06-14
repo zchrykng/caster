@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -25,23 +26,29 @@ type Config struct {
 
 func main() {
 
-	path, _ := homedir.Expand("~/.caster")
+	hostPtr := flag.String("host", "localhost", "host name")
+	portPtr := flag.String("port", "8000", "port")
+	rootPtr := flag.String("root", "~/.config/caster/casts", "cast root folder")
+	userfilePtr := flag.String("userfile", "~/.config/caster/users.json", "user config file")
 
-	file, err := os.Open(path)
-	defer file.Close()
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-	decoder := json.NewDecoder(file)
+	flag.Parse()
+
 	c := Config{}
-	err = decoder.Decode(&c)
+	c.URL = fmt.Sprintf("%s:%s", *hostPtr, *portPtr)
+	c.Root, _ = homedir.Expand(*rootPtr)
+
+	userPath, _ := homedir.Expand(*userfilePtr)
+	userfile, err := os.Open(userPath)
+	defer userfile.Close()
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+	userDecoder := json.NewDecoder(userfile)
 
-	fmt.Println(c)
-
-	c.Root, _ = homedir.Expand(c.Root)
+	err = userDecoder.Decode(&c.Users)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
 
 	cast, err := caster.MakeCaster(c.URL, c.Root)
 	if err != nil {
@@ -55,5 +62,5 @@ func main() {
 
 	http.Handle("/", cast.Router)
 
-	http.ListenAndServe(":8000", nil)
+	http.ListenAndServe(fmt.Sprintf(":%s", *portPtr), nil)
 }
