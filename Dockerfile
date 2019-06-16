@@ -1,8 +1,8 @@
 FROM golang
 
-ADD ./users.json /users.json
+ADD . /go/src/github.com/zchrykng/caster
 
-RUN go get github.com/zchrykng/gocaster/cmd/caster
-RUN go install github.com/zchrykng/gocaster/cmd/caster
+RUN go get github.com/zchrykng/caster
+RUN go install github.com/zchrykng/caster
 
 ENTRYPOINT ["/go/bin/caster", "-root=/casts", "-userfile=/users.json"]
