@@ -1,0 +1,6 @@
+[{
+	"Name": "zchrykng",
+	"Pass": "password",
+	"Admin": true,
+	"AuthedFeeds": [ "all" ]
+}]

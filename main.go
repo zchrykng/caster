@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/mitchellh/go-homedir"
-	caster "github.com/zchrykng/gocaster"
 )
 
 type User struct {
@@ -50,7 +49,7 @@ func main() {
 		fmt.Println("error:", err)
 	}
 
-	cast, err := caster.MakeCaster(c.URL, c.Root)
+	cast, err := MakeCaster(c.URL, c.Root)
 	if err != nil {
 		fmt.Println("error:", err)
 	}

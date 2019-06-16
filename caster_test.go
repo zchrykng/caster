@@ -1,4 +1,4 @@
-package caster
+package main
 
 import "testing"
 
