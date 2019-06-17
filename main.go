@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/mitchellh/go-homedir"
 )
@@ -64,6 +65,23 @@ func main() {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
+
+	ticker := time.NewTicker(15 * time.Minute)
+	quit := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				err := cast.ScanFeeds()
+				if err != nil {
+					fmt.Println("error:", err)
+				}
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 
 	http.Handle("/", cast.Router)
 

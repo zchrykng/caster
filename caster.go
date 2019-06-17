@@ -35,17 +35,21 @@ func (c *Caster) ScanFeeds() error {
 	}
 
 	for _, f := range files {
-		if f.IsDir() {
-			slug := Slugify(f.Name(), true)
-			u := c.URL + "/" + slug
+		slug := Slugify(f.Name(), true)
+		if val, ok := c.Feeds[slug]; ok {
+			val.ScanEpisodes()
+		} else {
+			if f.IsDir() {
+				u := c.URL + "/" + slug
 
-			c.Feeds[slug], err = MakeFeed(u, filepath.Join(c.Root, f.Name()), f.Name())
-			if err != nil {
-				log.Fatal(err)
+				c.Feeds[slug], err = MakeFeed(u, filepath.Join(c.Root, f.Name()), f.Name())
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				c.Router.HandleFunc("/"+slug, c.Feeds[slug].FeedHandler)
+				c.Router.HandleFunc("/"+slug+"/{fileSlug}", c.Feeds[slug].FeedEpisode)
 			}
-
-			c.Router.HandleFunc("/"+slug, c.Feeds[slug].FeedHandler)
-			c.Router.HandleFunc("/"+slug+"/{fileSlug}", c.Feeds[slug].FeedEpisode)
 		}
 	}
 

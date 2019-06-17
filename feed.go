@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 	"time"
 
 	//"github.com/rogpeppe/godef/go/types"
@@ -20,6 +21,23 @@ type Feed struct {
 	Root     string
 	Title    string
 	Episodes map[string]*Episode
+}
+
+type EpisodeWrapper struct {
+	filename string
+	item     podcast.Item
+}
+
+type byPosition []EpisodeWrapper
+
+func (s byPosition) Len() int {
+	return len(s)
+}
+func (s byPosition) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s byPosition) Less(i, j int) bool {
+	return s[i].filename < s[j].filename
 }
 
 var typeFilter = regexp.MustCompile(".*\\.(m4a|m4b|mp3)")
@@ -59,17 +77,26 @@ func (f *Feed) FeedHandler(w http.ResponseWriter, r *http.Request) {
 
 	p := podcast.New(f.Title, f.URL, f.Title, &now, &now)
 
+	items := []EpisodeWrapper{}
+
 	for k, v := range f.Episodes {
-		item := podcast.Item{
+		item := EpisodeWrapper{filename: v.Location}
+		item.item = podcast.Item{
 			Title:       v.Name,
 			Link:        f.URL + "/" + k,
 			Description: v.Name,
 			PubDate:     &v.ModifiedTime,
 		}
 
-		item.AddEnclosure(item.Link, podcast.M4A, v.Size)
+		item.item.AddEnclosure(item.item.Link, podcast.M4A, v.Size)
 
-		_, err := p.AddItem(item)
+		items = append(items, item)
+	}
+
+	sort.Sort(byPosition(items))
+
+	for _, v := range items {
+		_, err := p.AddItem(v.item)
 		if err != nil {
 			fmt.Println(err)
 		}
