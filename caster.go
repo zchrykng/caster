@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"sort"
 
 	"github.com/gorilla/mux"
 )
@@ -59,8 +60,15 @@ func (c *Caster) ScanFeeds() error {
 }
 
 func (c *Caster) Handler(w http.ResponseWriter, r *http.Request) {
+	// To store the keys in slice in sorted order
+	var keys []string
+	for k := range c.Feeds {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
 
-	for k, v := range c.Feeds {
-		fmt.Fprintln(w, v.Title, "<->", k)
+	// To perform the opertion you want
+	for _, k := range keys {
+		fmt.Fprintln(w, c.Feeds[k].Title, "<->", k)
 	}
 }
