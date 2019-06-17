@@ -6,8 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-
-	"github.com/fsnotify/fsnotify"
+	
 	"github.com/mitchellh/go-homedir"
 )
 
