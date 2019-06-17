@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -29,11 +30,17 @@ func main() {
 	portPtr := flag.String("port", "8000", "port")
 	rootPtr := flag.String("root", "~/.config/caster/casts", "cast root folder")
 	userfilePtr := flag.String("userfile", "~/.config/caster/users.json", "user config file")
+	exposePortPtr := flag.Bool("exposeport", false, "if the port should be included in the host url")
 
 	flag.Parse()
 
 	c := Config{}
-	c.URL = fmt.Sprintf("%s:%s", *hostPtr, *portPtr)
+	if *exposePortPtr {
+		c.URL = fmt.Sprintf("https://%s:%s", *hostPtr, *portPtr)
+	} else {
+		c.URL = fmt.Sprintf("https://%s", *hostPtr)
+	}
+
 	c.Root, _ = homedir.Expand(*rootPtr)
 
 	userPath, _ := homedir.Expand(*userfilePtr)
