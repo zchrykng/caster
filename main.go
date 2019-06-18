@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -82,6 +84,13 @@ func main() {
 			}
 		}
 	}()
+
+	middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
+		if username == "zchrykng" && password == "secret" {
+			return true, nil
+		}
+		return false, nil
+	})
 
 	http.Handle("/", cast.Router)
 
