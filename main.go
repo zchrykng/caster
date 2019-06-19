@@ -8,8 +8,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
 	"github.com/mitchellh/go-homedir"
 )
 
@@ -31,7 +29,7 @@ func main() {
 	hostPtr := flag.String("host", "localhost", "host name")
 	portPtr := flag.String("port", "8000", "port")
 	rootPtr := flag.String("root", "~/.config/caster/casts", "cast root folder")
-	userfilePtr := flag.String("userfile", "~/.config/caster/users.json", "user config file")
+	userFilePtr := flag.String("userfile", "~/.config/caster/users.json", "user config file")
 	exposePortPtr := flag.Bool("exposeport", false, "if the port should be included in the host url")
 
 	flag.Parse()
@@ -45,13 +43,13 @@ func main() {
 
 	c.Root, _ = homedir.Expand(*rootPtr)
 
-	userPath, _ := homedir.Expand(*userfilePtr)
-	userfile, err := os.Open(userPath)
-	defer userfile.Close()
+	userPath, _ := homedir.Expand(*userFilePtr)
+	userFile, err := os.Open(userPath)
+	defer userFile.Close()
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-	userDecoder := json.NewDecoder(userfile)
+	userDecoder := json.NewDecoder(userFile)
 
 	err = userDecoder.Decode(&c.Users)
 	if err != nil {
@@ -85,12 +83,9 @@ func main() {
 		}
 	}()
 
-	middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		if username == "zchrykng" && password == "secret" {
-			return true, nil
-		}
-		return false, nil
-	})
+	ba := MakeBasicAuth(c.Users)
+
+	cast.Router.Use(ba.Middleware)
 
 	http.Handle("/", cast.Router)
 

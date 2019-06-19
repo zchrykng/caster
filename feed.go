@@ -96,6 +96,7 @@ func (f *Feed) FeedHandler(w http.ResponseWriter, r *http.Request) {
 	sort.Sort(byPosition(items))
 
 	for _, v := range items {
+		fmt.Println(v.item.Title)
 		_, err := p.AddItem(v.item)
 		if err != nil {
 			fmt.Println(err)
