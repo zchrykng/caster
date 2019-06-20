@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/subtle"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -15,7 +16,10 @@ func MakeBasicAuth(users []*User) *BasicAuth {
 
 	ba.users = make(map[string]string)
 
-	ba.Populate(users)
+	err := ba.Populate(users)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	return ba
 }
