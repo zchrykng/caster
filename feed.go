@@ -16,6 +16,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Feed contains the information for each directory of episodes.
 type Feed struct {
 	URL      string
 	Root     string
@@ -23,6 +24,7 @@ type Feed struct {
 	Episodes map[string]*Episode
 }
 
+// EpisodeWrapper contains the file name and podcast.Item for each podcast file
 type EpisodeWrapper struct {
 	filename string
 	item     podcast.Item
@@ -42,12 +44,7 @@ func (s byPosition) Less(i, j int) bool {
 
 var typeFilter = regexp.MustCompile(".*\\.(m4a|m4b|mp3)")
 
-// var templates = packr.NewBox("./templates")
-
-// var feedTemplate = template.Must(template.New(templates.FindString("feed.xml")))
-
-//var feedTemplate = template.Must(template.ParseFiles("/User/zach/Documents/Projects/caster"))
-
+// MakeFeed does the initial setup for the Feed structure and kicks off the initial scan for episodes
 func MakeFeed(URL string, Root string, Title string) (*Feed, error) {
 	f := &Feed{URL: URL, Root: Root, Title: Title}
 
@@ -57,6 +54,7 @@ func MakeFeed(URL string, Root string, Title string) (*Feed, error) {
 	return f, nil
 }
 
+// ScanEpisodes reads the root directory and creates an Episode for each matching media file in the directory
 func (f *Feed) ScanEpisodes() error {
 	files, err := ioutil.ReadDir(f.Root)
 	if err != nil {
@@ -72,6 +70,7 @@ func (f *Feed) ScanEpisodes() error {
 	return nil
 }
 
+// FeedHandler serves the RSS feed for podcast players
 func (f *Feed) FeedHandler(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 
@@ -110,6 +109,7 @@ func (f *Feed) FeedHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// FeedEpisode serves the media file when requested by a podcast player
 func (f *Feed) FeedEpisode(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	slug := vars["fileSlug"]

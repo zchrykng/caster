@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Caster is the base struct for the podcast server.
 type Caster struct {
 	URL    string
 	Root   string
@@ -18,6 +19,7 @@ type Caster struct {
 	Router *mux.Router
 }
 
+// MakeCaster takes a base url string and root directory string and returns a Caster struct
 func MakeCaster(URL string, Root string) (*Caster, error) {
 	c := &Caster{URL: URL, Root: Root}
 	c.Feeds = make(map[string]*Feed)
@@ -29,6 +31,7 @@ func MakeCaster(URL string, Root string) (*Caster, error) {
 	return c, nil
 }
 
+// ScanFeeds reads the files and folders contained in the root directory and creates Feed objects for each directory
 func (c *Caster) ScanFeeds() error {
 	files, err := ioutil.ReadDir(c.Root)
 	if err != nil {
@@ -59,6 +62,7 @@ func (c *Caster) ScanFeeds() error {
 	return nil
 }
 
+// Handler impliments the http.FuncHandler spec and serves a list of feeds
 func (c *Caster) Handler(w http.ResponseWriter, r *http.Request) {
 	// To store the keys in slice in sorted order
 	var keys []string

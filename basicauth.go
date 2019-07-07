@@ -7,10 +7,12 @@ import (
 	"net/http"
 )
 
+// BasicAuth is a struct for building a Middleware function for enforcing http basic auth
 type BasicAuth struct {
 	users map[string]string
 }
 
+// MakeBasicAuth creates and returns a BasicAuth object populated with the passed users slice
 func MakeBasicAuth(users []*User) *BasicAuth {
 	ba := &BasicAuth{}
 
@@ -24,6 +26,7 @@ func MakeBasicAuth(users []*User) *BasicAuth {
 	return ba
 }
 
+// Populate populates the BasicAuth structure with the passed users
 func (ba *BasicAuth) Populate(users []*User) error {
 
 	for _, v := range users {
@@ -33,6 +36,7 @@ func (ba *BasicAuth) Populate(users []*User) error {
 	return nil
 }
 
+// Middleware wraps an http.Handler with http basic auth enforcement
 func (ba *BasicAuth) Middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user, pass, ok := r.BasicAuth()
@@ -51,4 +55,3 @@ func (ba *BasicAuth) Middleware(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-

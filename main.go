@@ -11,6 +11,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
+// User is used for BasicAuth only at the moment
 type User struct {
 	Name        string
 	Pass        string
@@ -18,6 +19,7 @@ type User struct {
 	AuthedFeeds []string
 }
 
+// Config stores the information needed to create a Caster instance
 type Config struct {
 	URL   string
 	Root  string
